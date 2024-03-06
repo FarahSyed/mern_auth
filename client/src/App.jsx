@@ -1,11 +1,10 @@
 import React from 'react'
+import AppRouter from './config/routes';
 
 
 function App() {
   return (
-    <>
-      <h1 className='text-green-500'>Auth App</h1>
-    </>
+    <AppRouter />
   )
 }
 
