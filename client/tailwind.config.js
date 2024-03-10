@@ -12,6 +12,7 @@ export default {
         'primary': '#b91c1c',
         'secondary': '#334155',
         'link': '#3b82f6',
+        'error': '#dc2626',
       },
     },
   },
