@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Button, Input } from '../components';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 
 
 function SignUp() {
+
+  const navigate = useNavigate();
 
   const [formData, setFormData] = useState({});
   const [error, setError] = useState(false);
@@ -33,6 +35,7 @@ function SignUp() {
         setError(data.message);
         return;
       }
+      navigate('/sign-in');
     } catch (error) {
       setLoading(false);
       setError(error);
