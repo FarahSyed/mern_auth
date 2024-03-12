@@ -1,18 +1,20 @@
 import React, { useState } from 'react';
 import { Button, Input } from '../components';
 import { Link, useNavigate } from 'react-router-dom';
+import { signInStart, signInSuccess, signInFailure, changeState } from '../redux/user/userSlice';
+import { useDispatch, useSelector } from 'react-redux';
 
 
 function SignIn() {
 
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   
   const [formData, setFormData] = useState({});
-  const [error, setError] = useState(false);
-  const [loading, setLoading] = useState(false);
+  const { loading, error } = useSelector((state) => state.user);
   
   const handleFocus = () => {
-    if(error) setError(false);
+    if(error) dispatch(changeState(false));
   }
   
   const handleChange = (e) => {
@@ -23,22 +25,22 @@ function SignIn() {
     e.preventDefault();
 
     try {
-      setLoading(true);
+      dispatch(signInStart());
       const res = await fetch('/api/auth/signin', {
         method: 'POST',
         headers: {'Content-Type': 'application/json'},
         body: JSON.stringify(formData)
       });
       const data = await res.json();
-      setLoading(false);
+      console.log(data);
       if (data.success === false) {
-        setError(data.message);
+        dispatch(signInFailure(data));
         return;
       }
+      dispatch(signInSuccess(data));
       navigate('/');
     } catch (error) {
-      setLoading(false);
-      setError(error);
+      dispatch(signInFailure(error));
     }
   }
 
@@ -49,7 +51,7 @@ function SignIn() {
           
           <Input type="email" placeholder="Email" name="email" id="email" required onChange={handleChange} onFocus={handleFocus} />
           <Input type="password" placeholder="Password" name="password" id="password" required onChange={handleChange} onFocus={handleFocus} />
-          {error ? <p className='text-error pl-3 text-sm'>{error}</p> : null}
+          {error ? <p className='text-error pl-3 text-sm'>{error.message}</p> : null}
           <Button type="submit" value={loading ? "Loading..." : "Sign In"} disabled={loading ? true : false} bgColor='bg-secondary' />
           
           <div className='flex gap-2 mt-2'>

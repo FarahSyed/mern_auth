@@ -36,7 +36,7 @@ export const signin = async (req, res, next) => {
         if(!validUser) return next(errorHandler(401, "Invalid user credentials"));
         
         // Compare the given password with users password
-        const validPassword = bcryptjs.compare(password, validUser.password);
+        const validPassword = await bcryptjs.compare(password, validUser.password);
         if(!validPassword) return next(errorHandler(401, "Invalid user credentials"));
         
         // Sign the JSON Web Token
