@@ -22,7 +22,6 @@ const userSlice = createSlice({
             state.error = action.payload;
         },
         changeState: (state, action) => {
-            console.log(action.payload);
             state.error = action.payload;
         },
     }

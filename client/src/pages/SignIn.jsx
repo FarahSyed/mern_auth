@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Input } from '../components';
+import { Button, Input, OAuth } from '../components';
 import { Link, useNavigate } from 'react-router-dom';
 import { signInStart, signInSuccess, signInFailure, changeState } from '../redux/user/userSlice';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,7 +32,7 @@ function SignIn() {
         body: JSON.stringify(formData)
       });
       const data = await res.json();
-      console.log(data);
+
       if (data.success === false) {
         dispatch(signInFailure(data));
         return;
@@ -52,15 +52,18 @@ function SignIn() {
           <Input type="email" placeholder="Email" name="email" id="email" required onChange={handleChange} onFocus={handleFocus} />
           <Input type="password" placeholder="Password" name="password" id="password" required onChange={handleChange} onFocus={handleFocus} />
           {error ? <p className='text-error pl-3 text-sm'>{error.message}</p> : null}
-          <Button type="submit" value={loading ? "Loading..." : "Sign In"} disabled={loading ? true : false} bgColor='bg-secondary' />
+          <Button type="submit" value={loading ? "Loading..." : "Sign In"} disabled={loading ? true : false} className='bg-secondary' />
+        
+        </form>
           
+        <OAuth />
+
           <div className='flex gap-2 mt-2'>
             <p>Don&apos;t have an account? </p>
             <Link to="/sign-up">
               <span className='text-link'>Sign Up</span>
             </Link>
           </div>
-        </form>
     </div>
   )
 }

@@ -2,6 +2,7 @@ import User from "../models/user.model.js";
 import bcryptjs from 'bcryptjs';
 import { errorHandler } from "../utils/error.js";
 import jwt from "jsonwebtoken";
+import { cookieOptions, toCamelCase } from "../utils/helper.methods.js";
 
 const SECRET_KEY = process.env.SECRET_KEY;
 
@@ -42,18 +43,81 @@ export const signin = async (req, res, next) => {
         // Sign the JSON Web Token
         const token =  jwt.sign({ id: validUser._id }, SECRET_KEY);
 
-        // Destructuring Password to exclude from User Object before sending to Database
-        const { password: hashedPassword, ...user } = validUser._doc;   // Remember to include ._doc
-
-        const cookieExpiry = new Date(Date.now() + 3600000); //  1 hour
+        // Destructure Password to exclude it from User Object
+        let { password: hashedPassword, ...user } = validUser._doc;   // Remember to include ._doc
         
+        // Convert snake_case to camelCase before sending to Front-End
+        user = toCamelCase(user);
+
         // Send the Response to FrontEnd
         res
-        .cookie('access_token', token, {httpOnly: true, expires: cookieExpiry})
+        .cookie('access_token', token, cookieOptions)
         .status(200)
         .json(user);
 
     } catch(error) {
+        next(error);
+    }
+}
+
+export const google = async (req, res, next) => {
+    const { name, email, photo } = req.body || {};
+    try {
+        const validUser = await User.findOne({email});
+
+        if(validUser) {
+            // Sign the JWT token
+            const token = jwt.sign({ id: validUser._id }, SECRET_KEY);
+
+            // Destructure Password to exclude it from the user object
+            let { password: hashedPassword2, ...user } = validUser._doc;   // Remember to include ._doc
+            
+            // Convert snake_case to camelCase before sending to Front-End
+            user = toCamelCase(user);
+            
+            // Send the response to FrontEnd
+            res
+            .cookie('access_token', token, cookieOptions)
+            .status(200)
+            .json(user);
+
+        } else {    // If user does not exists, register the user
+            
+            // Generate a random password for the user which can be updated later
+            const generatedPassword = Math.random().toString(36).slice(-8) + 
+            Math.random().toString(36).slice(-8); //  In .toString(36) 36 means num from 0-9 and alphabets a-z and in .slice(-8) is copying the last 8 characters
+            
+            // Hash the generated password
+            const hashedPassword = await bcryptjs.hash(generatedPassword, 10);
+            
+            // Create a new user
+            const newUser = new User({
+                user_name: name.split(" ").join("").toLowerCase() + Math.floor(Math.random() * 10000).toString(),   // Generate a random username
+                email,
+                password: hashedPassword,
+                profile_picture: photo,
+            });
+
+            // Save the new user to database
+            await newUser.save();
+            
+            // Sign the JWT token
+            const token = jwt.sign({ id: newUser._id }, SECRET_KEY);
+            
+            // Destructure Password to exclude it from the user object
+            let { password: hashedPassword2, ...user } = newUser._doc;   // Remember to include ._doc
+            
+            // Convert snake_case to camelCase before sending to Front-End
+            user = toCamelCase(user);
+
+            // Send the response to FrontEnd
+            res
+            .cookie('access_token', token, cookieOptions)
+            .status(200)
+            .json(user);
+        }
+            
+    } catch (error) {
         next(error);
     }
 }

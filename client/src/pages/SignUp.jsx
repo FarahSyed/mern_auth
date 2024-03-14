@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Button, Input } from '../components';
+import { Button, Input, OAuth } from '../components';
 import { Link, useNavigate } from 'react-router-dom';
 
 
@@ -32,7 +32,7 @@ function SignUp() {
       const data = await res.json();
       setLoading(false);
       if (data.success === false) {
-        setError(data.message);
+        setError(data);
         return;
       }
       navigate('/sign-in');
@@ -50,8 +50,11 @@ function SignUp() {
           <Input type="text" placeholder="Username" name="userName" id="userName" required onChange={handleChange} onFocus={handleFocus} />
           <Input type="email" placeholder="Email" name="email" id="email" required onChange={handleChange} onFocus={handleFocus} />
           <Input type="password" placeholder="Password" name="password" id="password" required onChange={handleChange} onFocus={handleFocus} />
-          {error ? <p className='text-error pl-3 text-sm'>{error}</p> : null}
-          <Button type="submit" value={loading ? "Loading..." : "Sign Up"} disabled={loading ? true : false} bgColor='bg-secondary' />
+          {error ? <p className='text-error pl-3 text-sm'>{error.message}</p> : null}
+          <Button type="submit" value={loading ? "Loading..." : "Sign Up"} disabled={loading ? true : false} className='bg-secondary' />
+        </form>
+        
+        <OAuth />
           
           <div className='flex gap-2 mt-2'>
             <p>Have an account? </p>
@@ -59,7 +62,6 @@ function SignUp() {
               <span className='text-link'>Sign In</span>
             </Link>
           </div>
-        </form>
     </div>
   )
 }
