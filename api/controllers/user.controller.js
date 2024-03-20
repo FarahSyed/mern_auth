@@ -13,7 +13,7 @@ export const test = (req, res, next) => {
 // Update user
 export const updateUser = async (req, res, next) => {
     // Destructure coming data from req.body
-    const { userName, email, password, profilePicture } = req.body || {};
+    let { userName, email, password, profilePicture } = req.body || {};
     
     // Don't allow any user to update someone else's account
     if (req.user.id !== req.params.id) {
@@ -47,6 +47,24 @@ export const updateUser = async (req, res, next) => {
         res.status(200).json(user);
     }
      catch (error) {
+        next(error);
+    }
+}
+
+// Delete User
+export const deleteUser = async (req, res, next) => {
+    // Don't allow any user to delete someone else's account
+    if(req.user.id !== req.params.id) {
+        return next(errorHandler(401, "You can delete only your account"));
+    }
+
+    try {
+        // Delete user's data
+        await User.findByIdAndDelete(req.params.id);
+
+        // Send the response to FrontEnd
+        res.status(200).json("Your account has been deleted successfully");
+    } catch (error) {
         next(error);
     }
 }
