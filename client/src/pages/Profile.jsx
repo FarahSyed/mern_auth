@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Button, Input } from '../components';
 import { getDownloadURL, getStorage, ref, uploadBytesResumable } from 'firebase/storage';
 import { app } from '../config/firebaseConfig';
-import { updateUserStart, updateUserSuccess, updateUserFailure, changeState, deleteUserStart, deleteUserSuccess, deleteUserFailure } from '../redux/user/userSlice'
+import { updateUserStart, updateUserSuccess, updateUserFailure, deleteUserStart, deleteUserSuccess, deleteUserFailure, signOutStart, signOutSuccess, signOutFailure, changeState } from '../redux/user/userSlice'
 
 
 function Profile() {
@@ -93,6 +93,19 @@ function Profile() {
     }
   }
 
+  const handleSignOut = async () => {
+    try {
+      dispatch(signOutStart());
+      const res = await fetch('/api/auth/signout', {
+        method: "GET"
+      });
+      const data = await res.json();
+      dispatch(signOutSuccess(data));
+    } catch (error) {
+      dispatch(signOutFailure(error));
+    }
+  }
+
   
   useEffect(() => {
     if(image) {
@@ -131,7 +144,7 @@ function Profile() {
 
         <div className='flex justify-between mt-5'>
           <span onClick={handleDeleteAccount} className='text-error text-sm cursor-pointer'>Delete Account</span>
-          <span className='text-error text-sm cursor-pointer'>Sign Out</span>
+          <span onClick={handleSignOut} className='text-error text-sm cursor-pointer'>Sign Out</span>
         </div>
     </div>
   )
