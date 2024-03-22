@@ -4,7 +4,9 @@ import mongoose from 'mongoose';
 import cookieParser from "cookie-parser";
 import userRoutes from './routes/user.route.js'
 import authRoutes from './routes/auth.route.js'
+import path from 'path';
 
+const __dirname = path.resolve();
 const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI;
@@ -19,6 +21,10 @@ mongoose
   });
   
 // Middlewares
+app.use(express.static(path.join(__dirname, '/client/dist')));  //
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, 'client', 'dist', 'index.html'));
+});
 app.use(express.json());  // Allow body-parser
 app.use(cookieParser());  // Allow cookie-parser
 app.use('/api/auth', authRoutes);
